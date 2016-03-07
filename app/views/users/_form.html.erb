@@ -1,0 +1,50 @@
+<%= form_for(@user) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :email %><br>
+    <%= f.text_field :email %>
+  </div>
+  <div class="field">
+    <%= f.label :title %><br>
+    <%= f.select(:title,  [['1 carmine device', 'https://app.moonclerk.com/pay/8kvltqlpmm1'], ['2 carmine devices', 'https://app.moonclerk.com/pay/lfo4ycczswq'], ['3 carmine devices', 'https://app.moonclerk.com/pay/gsa5kj6ydmn'], ['4 carmine devices','https://app.moonclerk.com/pay/nwae9f82npy'], ['5 carmine devices', 'https://app.moonclerk.com/pay/opttg6flety'], ['6 carmine devices', 'https://app.moonclerk.com/pay/5kkwdwf9epy'], ['7 carmine devices', 'https://app.moonclerk.com/pay/ifd0plwg4gg']])  %> 
+i  </div>
+
+  <div class="field">
+    <%= f.label :address %><br>
+    <%= f.text_field :address %> 
+  </div>
+
+  <div class="field"> 
+    <%= f.label :company %> <br>
+    <%= f.text_field :company %> 
+  </div>  
+
+  <div class="field"> 
+    <%= f.label :fleetsize %> <br>
+    <%= f.text_field :fleetsize %> 
+  </div> 
+
+  <div class="field"> 
+    <%= f.label :phone %> <br>
+    <%= f.text_field :phone %> 
+  </div> 
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
