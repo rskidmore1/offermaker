@@ -1,0 +1,232 @@
+﻿INSTRUCTIONS 
+Enter all these commands and then copy-paste text into files. Modified lines will mostly be denoted with a comment. 
+
+COMMANDS 
+rails appName
+cd appName 
+rails g scaffold user name:string email:string title:string address:string company:string fleetsize:string phone:string
+rake db:migrate
+rails g mailer user_mailer
+bundle install
+FILES 
+config/initializers/setup_mail.rb 
+ActionMailer::Base.smtp_settings = {
+  :address              => "smtp.gmail.com",
+  :port                 => 587,
+  :domain               => "",
+  :user_name            => "",#replace with gmail user name 
+  :password             => "", #replace with gmail password 
+  :authentication       => "plain",
+  :enable_starttls_auto => true
+}
+
+
+app/mailers/user_mailer.rb 
+class UserMailer < ApplicationMailer
+  default :from => "faarmsproject@gmail.com",#my gmail
+          :bcc => "faarmsproject@gmail.com" #sends confirmation email to me 
+
+  def registration_confirmation(user)
+    @user = user  	
+    mail(:to => "#{user.name} <#{user.email}>", :subject => "Registered")
+  end 
+
+end
+
+/controllers/users_controller.rb 
+def create
+    @user = User.new(user_params)
+
+    respond_to do |format|
+      if @user.save
+        UserMailer.registration_confirmation(@user).deliver #added this line to enable delivery
+        format.html { redirect_to @user, notice: 'User was successfully created.' }
+        format.json { render :show, status: :created, location: @user }
+      else
+        format.html { render :new }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+This piece will go between def edit and def update
+
+app/user_mailer/registration_confirmation.html.erb
+<div style="background-color:silver">
+<p>Hello <%= @user.name %> </p> 
+<p>Thank you for choosing Carmine. Thank you for choosing Carmine. The link below is your ticket to an improved fleet experience. With over 15 years of experience of fleet management around the world, Carmine has brought its wisdom and technology to you.</p> 
+
+<p>Our vision is to bring the most intelligent and intuitive solution for business owners like yourself. We are here to partner with you and improve your business. Please use the link below to complete your order. Please use the link below to complete your order.</p> 
+
+<a href="<%= @user.title %>">Carmine Checkout</a> 
+
+
+<br>
+<br>
+<br>
+<hr width="60%">
+
+<p>Please take a moment to insure that the information you submitted to us is accurate.</p> 
+<p><strong>Address:</strong> <%= @user.address %></p> 
+<p><strong>Company:</strong> <%= @user.company %></p> 
+<p><strong>Fleet Size:</strong> <%= @user.fleetsize %></p> 
+<p><strong>Phone Number:</strong> <%= @user.phone %></p> 
+
+<p>Thanks.</p>
+<p>Carmine.</p>
+</div>
+registration_confirmation.text.erb will be the same minus html tags 
+
+/app/views/users/_form.html.erb
+<%= form_for(@user) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :email %><br>
+    <%= f.text_field :email %>
+  </div>
+  <div class="field">
+    <%= f.label :title %><br>
+    <%= f.select(:title,  [['1 carmine device', 'https://app.moonclerk.com/pay/8kvltqlpmm1'], ['2 carmine devices', 'https://app.moonclerk.com/pay/lfo4ycczswq'], ['3 carmine devices', 'https://app.moonclerk.com/pay/gsa5kj6ydmn'], ['4 carmine devices','https://app.moonclerk.com/pay/nwae9f82npy'], ['5 carmine devices', 'https://app.moonclerk.com/pay/opttg6flety'], ['6 carmine devices', 'https://app.moonclerk.com/pay/5kkwdwf9epy'], ['7 carmine devices', 'https://app.moonclerk.com/pay/ifd0plwg4gg']])  %> 
+i  </div>
+
+  <div class="field">
+    <%= f.label :address %><br>
+    <%= f.text_field :address %> 
+  </div>
+
+  <div class="field"> 
+    <%= f.label :company %> <br>
+    <%= f.text_field :company %> 
+  </div>  
+
+  <div class="field"> 
+    <%= f.label :fleetsize %> <br>
+    <%= f.text_field :fleetsize %> 
+  </div> 
+
+  <div class="field"> 
+    <%= f.label :phone %> <br>
+    <%= f.text_field :phone %> 
+  </div> 
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+This page is used by edit.html.erb and new.html.erb to as a template to display more information 
+
+
+/app/views/users/index.html.erb
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Title</th>
+      <th>Address</th>
+      <th>Company</th> 
+      <th>Fleet Size</th>
+      <th>Phone Number</th>
+      <th>Date</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.title %></td><br>
+        <td><%= user.address %></td> 
+        <td><%= user.company %></td> 
+        <td><%= user.fleetsize %></td> 
+        <td><%= user.phone %></td> 
+        
+       
+        <td><%= link_to 'Show', user %></td>
+        <td><%= link_to 'Edit', edit_user_path(user) %></td>
+        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New User', new_user_path %>
+
+
+
+
+
+
+/app/views/users/show.html.erb
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Title</th>
+      <th>Address</th>
+      <th>Company</th> 
+      <th>Fleet Size</th>
+      <th>Phone Number</th>
+      <th>Date</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.title %></td><br>
+        <td><%= user.address %></td> 
+        <td><%= user.company %></td> 
+        <td><%= user.fleetsize %></td> 
+        <td><%= user.phone %></td> 
+        
+       
+        <td><%= link_to 'Show', user %></td>
+        <td><%= link_to 'Edit', edit_user_path(user) %></td>
+        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New User', new_user_path %>
+
+
+
+
+/config/routes.rb
+Rails.application.routes.draw do
+  resources :users
+  root 'user#new' #add this to make url default new.html.erb so offer can be sent 
